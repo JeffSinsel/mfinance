@@ -13,8 +13,8 @@ def clean_number(value):
     value = value.replace(",","")
     value = value.replace("$","")
     value = value.replace('€',"")
-    if "-" in value[1:]:
-        value = value.replace("-","_") 
+    value = value.replace('₩',"")
+    value = value.replace('¥',"")
     if value[0] == "(" and value[-1] == ")":
         value = "-"+value[1:-1]
     if value[-1] == "K":
@@ -175,3 +175,35 @@ class Ticker:
                 return None
             full_df = pd.concat(df_dict.values(),join='inner').sort_values('date',ascending=ascending).reset_index()
             return full_df
+
+    def current_price(self):
+        link = "https://www.marketwatch.com/investing/stock/"+self.ticker
+        soup = get_soup(link)
+        price = soup.find(class_="intraday__price").get_text().split('\n')[2]
+        return price
+
+    def key_data(self,format='float'):
+        link = "https://www.marketwatch.com/investing/stock/"+self.ticker
+        key_data_dict = {}
+        soup = get_soup(link)
+        elements = soup(class_="list list--kv list--col50")[0].get_text().split("\n")
+        for i,value in enumerate(elements):
+            if i%5 == 3:
+                if format == 'float':
+                    value = clean_number(value)
+                key_data_dict[elements[i-1].lower().replace(" ","_")] = value
+        return key_data_dict
+
+    def competitors(self,format='float'):
+        link = "https://www.marketwatch.com/investing/stock/"+self.ticker
+        competitors_dict = {}
+        soup = get_soup(link)
+        elements = soup(class_="table table--primary align--right")[2].get_text().split("\n")
+        for i,value in enumerate(elements):
+            if i<10:
+                pass
+            elif i%5 == 2:
+                if format == 'float':
+                    value = clean_number(value)
+                competitors_dict[elements[i-2].title()] = value
+        return competitors_dict
