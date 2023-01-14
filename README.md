@@ -2,6 +2,7 @@
 work in progress web scraper of marketwatch
 basics:
 Ticker(ticker) creates an object based on the ticker parameter with 3 different consturctors: 
+
 ---
 `Ticker(ticker).financial(self,reports=list('income_statement','balance_statement','cash_flow'),ascending=False,format="float",quarterly=False)`
 
